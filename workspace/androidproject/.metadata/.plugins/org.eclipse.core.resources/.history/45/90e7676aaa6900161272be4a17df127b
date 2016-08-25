@@ -1,0 +1,123 @@
+package com.wz.test2;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+
+import javax.net.ssl.HttpsURLConnection;
+
+import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
+import android.os.Bundle;
+import android.os.StrictMode;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+
+
+public class MainActivity extends Activity {
+	Button sButton;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		//写在主程序前的为了检查网络联网是否出错，出错会有警告
+		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+		.detectDiskReads()
+		.detectDiskWrites()
+		.detectNetwork()
+		//若出错警告会写到logcat
+		.penaltyLog()
+		.build());
+		StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+		.detectLeakedSqlLiteObjects()
+		.detectLeakedClosableObjects()
+		.penaltyLog()
+		//一旦将StrictMode消息写到Logcat，应用程序会崩溃
+		.penaltyDeath()
+		.build());
+		
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		sButton=(Button) findViewById(R.id.s);
+		sButton.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				String httpUrl="https://reg.163.com/logins.jsp" ;  //要访问的http url地址
+				String resultDataString="";
+				URL url=null;
+				try {
+					url=new URL(httpUrl);
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					System.out.println(e.getMessage());
+				}
+				if(url!=null){
+					//打开一个HttpURLConnection连接
+					try {
+						HttpsURLConnection urlConnection=(HttpsURLConnection) url.openConnection();
+						//设置为post请求
+						urlConnection.setRequestMethod("POST");
+						//连接遵循重定向
+						urlConnection.setInstanceFollowRedirects(true);
+						
+						//POST请求必须设置允许输出
+						urlConnection.setDoOutput(true);
+						//设置允许输入
+						urlConnection.setDoInput(true);
+						//POST请求不能使用缓存
+						urlConnection.setUseCaches(false);
+						//配置请求
+						urlConnection.setRequestProperty("contentType", "GBK");  //解决中文显示乱码问题
+						//开始连接
+						urlConnection.connect();
+						//发送请求参数
+						DataOutputStream outputStream=new DataOutputStream(urlConnection.getOutputStream());
+						//声明参数
+						/*
+						 * String content="POST参数名="+URLEncoder.encode("传入值","gb2312");
+						 */
+						String contentString="id="+URLEncoder.encode("明明","gb2312");
+						outputStream.writeBytes(contentString);
+						//只要写入就会有内存流flush()是将内存流中的内容写入到文件中并且清空内存流中的内容
+						//当调用close()时里面也会调用flush()
+						outputStream.flush();
+						outputStream.close();
+						BufferedReader reader=new BufferedReader(new InputStreamReader(urlConnection.getInputStream(),"GBK"));
+						String inputLine=null;
+						while((inputLine=reader.readLine())!=null){
+							resultDataString+=inputLine+"\n";
+							
+						}
+						reader.close();
+						//关闭连接
+						urlConnection.disconnect();
+						if(resultDataString!=""){
+							System.out.println(resultDataString);
+							
+						}else{
+							System.out.println("the content is null");
+						}
+						
+						
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						System.out.println(e.getMessage());
+					}
+					
+				}
+			}
+		});
+		
+	}
+
+
+    
+}

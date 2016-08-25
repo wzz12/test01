@@ -1,0 +1,78 @@
+package com.wz.testphonenum;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
+
+import org.apache.http.client.utils.URLEncodedUtils;
+
+public class HttpUrli {
+
+	private static final URLEncoder URLEncodeder = null;
+	private static String PATH="https://www.baidu.com/";
+	private static URL url;
+	public HttpUrli(){
+		
+	};
+	static{
+		try{
+			url=new URL(PATH);
+			
+	
+		}catch(MalformedURLException e){
+			e.printStackTrace();
+		}
+		
+	}
+	//params是填写的url参数，encode是字节编码
+	public static String sendPostMessageString(Map<String, String> params,String encode) throws IOException{
+		StringBuffer buffer=new StringBuffer();
+		try{
+		//请求的主体写入正文？
+		if(params!=null&&!params.isEmpty()){
+			//迭代器？
+			//StringBuffer的append方法是往动态字符串数组里添加类似于+号
+			for(Map.Entry<String, String> entry : params.entrySet()){
+				buffer.append(entry.getKey()).append("=").
+				append(URLEncodeder.encode(entry.getValue(),encode)).append("&");
+				
+			}
+			}
+		//删除最后一个字符&，多了一个设置好了
+		buffer.deleteCharAt(buffer.length()-1);
+		byte[] mydata=buffer.toString().getBytes();
+		HttpsURLConnection connection=(HttpsURLConnection) url.openConnection();
+		connection.setConnectTimeout(3000);
+		connection.setDoInput(true);//从服务器获取数据
+		connection.setDoOutput(true);//表示向服务器写数据
+		
+		//获得上传信息的字节大小及长度
+		connection.setRequestMethod("POST");
+		//是否使用缓存
+		connection.setUseCaches(false);
+		//表示设置请求体的类型是文本类型
+		
+		connection.setRequestProperty("COntent-Type", "application/x-www-form-urlencoded");
+		//String.valueOf()是将括号里的数据转换成字符串
+		connection.setRequestProperty("Content-Length", String.valueOf(mydata.length));
+		connection.connect();//连接
+		
+		//获得输出流，向服务器输出数据
+		OutputStream outputStream = connection.getOutputStream();
+		outputStream.write(mydata,0,mydata.length);
+		
+		}catch(UnsupportedEncodingException e){
+			e.printStackTrace();
+		}
+		return "";
+		
+	}
+			
+
+}

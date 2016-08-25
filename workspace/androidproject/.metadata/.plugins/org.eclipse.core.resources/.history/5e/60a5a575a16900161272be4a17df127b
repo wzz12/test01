@@ -1,0 +1,14 @@
+package com.wz.test2;
+
+import android.support.v7.app.ActionBarActivity;
+import android.os.Bundle;
+import android.os.StrictMode;
+import android.view.Menu;
+import android.view.MenuItem;
+
+
+public class MainActivity extends Activity {
+
+
+    
+}
